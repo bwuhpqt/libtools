@@ -1,0 +1,7 @@
+env1 = Environment(CC = 'g++', CCFLAGS = '-O2 -std=c++11 -w')
+
+env1.Library('config', ['Config.cpp'])
+
+env2 = Environment(CC = 'g++', CCFLAGS = '-O1 -w')
+env2.Program(target='test', source=['main.cpp'], LIBS=['config'], LIBPATH='.')
+

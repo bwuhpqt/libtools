@@ -1,0 +1,31 @@
+
+env = Environment(CC = 'g++', CCFLAGS = '-std=c++11 -O2 -g -fPIC')
+
+flags = env.ParseFlags(['-pthread', '-Wall', '-Dprivate=public', '-Wno-deprecated', '-O2', '-fopenmp', 
+    '-Wno-strict-aliasing', '-frtti', '-rdynamic']) 
+
+env.MergeFlags(flags)
+
+pub_lib = ['config', 'gtest_main', 'glog', 'dl']
+
+pub_lib_path = ['.', '../third64/gtest/lib', '../third64/glog/lib', '../third64/tcmalloc/lib',
+    '../third64/config/lib']
+
+include_path = ['.', './include/', '../third64/config/include/', '../third64/glog/include/', 
+    '../third64/gtest/include/']
+
+env.StaticLibrary(target='./lib/ac',
+		source=[Glob('./src/*/*.cpp')],
+		CPPPATH=include_path,
+		LIBS=pub_lib,
+		LIBPATH=pub_lib_path
+		)
+
+env.Program(target='./output/example',
+		source=[Glob('./main.cpp')],
+        CPPPATH=include_path,
+		LIBS=['ac', 'tcmalloc'] + pub_lib,
+		LIBPATH=['.', './lib/'] + pub_lib_path
+		)
+
+env.Depends("example", "ac.a")
