@@ -44,8 +44,13 @@ namespace lib_tools
             int32_t search()
             {
                 //vector<string> pattern = {"23", "34","4", "5"};
+                return search(_ac_automation); 
+            }
+
+            int32_t search(ACAutomaton<std::string>& ac)
+            {
                 vector<string> pattern = {"我","不知道", "你", "是", "de", "1", "2", "3", "4", "5"};
-                vector<vector<string>> response = _ac_automation.search(pattern);
+                vector<vector<string>> response = ac.search(pattern);
 
                 for (auto pattern : response)
                 {
@@ -56,8 +61,22 @@ namespace lib_tools
                     }
                     std::cout << std::endl;
                 }
-                return  0;    
+                return  0; 
             }
+
+            int32_t store()
+            {
+                this->_ac_automation.store("./data_store.dat");
+                return 0;
+            }
+
+            int32_t load_and_research()
+            {
+                ACAutomaton<std::string> tmp_ac_automation;
+                tmp_ac_automation.load("./data_store.dat");
+                return search(tmp_ac_automation); 
+            }
+
 
         private:
             ACAutomaton<std::string> _ac_automation;

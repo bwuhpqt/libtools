@@ -14,4 +14,6 @@ int main()
     lib_tools::Example example;
     example.build();
     example.search();
+    example.store();
+    example.load_and_research();
 }

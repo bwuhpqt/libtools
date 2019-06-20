@@ -5,11 +5,13 @@ namespace lib_tools
     ACAutomaton<Type>::ACAutomaton()
     {
         _current_max_node_id = 0;
+        _build_start = false;
     } 
 
     template <typename Type>
     int32_t ACAutomaton<Type>::insert(const vector<Type>& elements)
     {
+        Predictions::param_check(!_build_start, "build has start, could not insert");
         int64_t current_node = 0;
 
         for (Type element : elements)
@@ -34,6 +36,10 @@ namespace lib_tools
     template <typename Type>
     int32_t ACAutomaton<Type>::build()
     {
+        Predictions::param_check(!_build_start, "build has start, could not build again");
+        
+        _build_start = true;
+
         int32_t ret = build_goto_table();
         if (ret != 0)
         {
@@ -223,4 +229,69 @@ namespace lib_tools
         return _org_input_elements.find(node_id) != 
             _org_input_elements.end();
     }
+
+    template <typename Type>
+    bool ACAutomaton<Type>::store(std::string file_name)
+    {
+        Predictions::param_check(file_name.size() != 0, "store file name size could not be empty");
+
+        std::ofstream ofs(file_name);
+
+        Predictions::param_check(ofs.is_open(), "ofs must be open");
+
+        return store_org_input_elements(ofs);
+    }
+
+    template <typename Type>
+    bool ACAutomaton<Type>::store_org_input_elements(std::ofstream& ofs)
+    {
+
+        for (typename Map<int64_t, vector<Type>>::iterator itr = _org_input_elements.begin();
+                itr != _org_input_elements.end(); itr++)
+        {
+            ofs << itr->second.size() << std::endl;
+            for (Type v : itr->second)
+            {
+                ofs << v << std::endl;
+            }
+        }
+
+        return true;
+    }
+
+    template <typename Type>
+    bool ACAutomaton<Type>::load(std::string file_name)
+    {
+        Predictions::param_check(file_name.size() != 0, "load file name must be not empty");
+        Predictions::param_check(!_build_start, "load ac must be clean");
+
+        std::ifstream ifs(file_name);
+
+        Predictions::param_check(ifs.is_open(), "ifs must be open");
+
+        return load_org_input_elements(ifs);
+    }
+
+    template <typename Type>
+    bool ACAutomaton<Type>::load_org_input_elements(std::ifstream& ifs)
+    {
+        while (!ifs.eof())
+        {
+            size_t count = 0;
+            ifs >> count;
+            std::vector<Type> values;
+            while (values.size() < count)
+            {
+                Type value;
+                ifs >> value;
+                values.push_back(value);
+            }
+            this->insert(values);
+        }
+
+        this->build();
+
+        return true;
+    }
+
 }

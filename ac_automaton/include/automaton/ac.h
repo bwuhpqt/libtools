@@ -12,6 +12,9 @@
 #include <unordered_set>
 #include <vector>
 #include <queue>
+#include <fstream>
+#include "utils/utils.h"
+
 namespace lib_tools
 {
     template<typename KT, typename VT>
@@ -31,6 +34,9 @@ namespace lib_tools
 
             vector<vector<Type>> search(const vector<Type>& elements);
 
+            bool store(std::string file_name);
+            bool load(std::string file_name);
+
         private:
             int32_t build_goto_table();
             int32_t build_fail_table();
@@ -46,14 +52,17 @@ namespace lib_tools
 
             bool is_final_stage_node(int64_t node_id);
 
+            bool store_org_input_elements(std::ofstream& ofs);
+
+            bool load_org_input_elements(std::ifstream& ifs);
             
         private:
             Map<int64_t, Map<Type, int64_t>>  _goto_table;
             Map<int64_t, int64_t> _fail_table;
             Map<int64_t, vector<int64_t>> _output_table;
-            
             Map<int64_t, vector<Type>> _org_input_elements;
             int64_t _current_max_node_id;
+            bool _build_start;
 
     };
 }
